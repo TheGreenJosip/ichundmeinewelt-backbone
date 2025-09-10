@@ -5,7 +5,13 @@
  * As we add more lists (Customer, Order, etc.), we just add them here.
  */
 import { User } from './User';
+import { Post } from './Post';
+import { Tag } from './Tag';
+import { ContactSubmission } from './ContactSubmission';
 
 export const lists = {
-  User,
+    User,
+    Post,
+    Tag,
+    ContactSubmission,
 };

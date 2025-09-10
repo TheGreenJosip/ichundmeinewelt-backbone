@@ -16,6 +16,8 @@ import { text, password, select, timestamp } from '@keystone-6/core/fields';
 import { Roles, RolesValues } from '../access-control/role.enum';
 import { accessRules } from '../access-control/access';
 import { ListAccessArgs } from '../types';
+import { timestampFields } from '../fields/timestampFields';
+
 
 export const User = list({
   access: {
@@ -59,30 +61,7 @@ export const User = list({
       validation: { isRequired: true },
     }),
 
-    /**
-     * createdAt:
-     * - Automatically set to "now" when the record is created.
-     * - Hidden in create form, read-only in item view.
-     */
-    createdAt: timestamp({
-      defaultValue: { kind: 'now' },
-      ui: {
-        createView: { fieldMode: 'hidden' },
-        itemView: { fieldMode: 'read' },
-      },
-    }),
-
-    /**
-     * updatedAt:
-     * - Automatically updated to "now" whenever the record is changed.
-     * - Hidden in create form, read-only in item view.
-     */
-    updatedAt: timestamp({
-      db: { updatedAt: true },
-      ui: {
-        createView: { fieldMode: 'hidden' },
-        itemView: { fieldMode: 'read' },
-      },
-    }),
+    // Inject reusable timestamps
+    ...timestampFields,
   },
 });
