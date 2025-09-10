@@ -16,7 +16,7 @@ import { text, password, select, timestamp } from '@keystone-6/core/fields';
 import { Roles, RolesValues } from '../access-control/role.enum';
 import { accessRules } from '../access-control/access';
 import { ListAccessArgs } from '../types';
-import { timestampFields } from '../fields/timestampFields';
+import { timestampFields } from '../utils/timestampFields';
 
 
 export const User = list({

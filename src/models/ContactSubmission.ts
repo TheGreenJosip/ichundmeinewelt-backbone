@@ -12,7 +12,7 @@ import { list } from '@keystone-6/core';
 import { text, timestamp } from '@keystone-6/core/fields';
 import { accessRules } from '../access-control/access';
 import { ListAccessArgs } from '../types';
-import { timestampFields } from '../fields/timestampFields';
+import { timestampFields } from '../utils/timestampFields';
 
 export const ContactSubmission = list({
   access: {
