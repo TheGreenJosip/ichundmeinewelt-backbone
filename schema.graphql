@@ -392,8 +392,12 @@ type Mutation {
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
+
+  """
+  Logs a message to the server console and returns a confirmation string.
+  """
   logMessage(
-    """The message to log to the server console"""
+    """The message text to log to the server console."""
     message: String!
   ): String
 }
@@ -431,6 +435,8 @@ type Query {
   contactSubmissionsCount(where: ContactSubmissionWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
+
+  """Returns a static greeting message for testing the API connection."""
   helloWorld: String
 }
 

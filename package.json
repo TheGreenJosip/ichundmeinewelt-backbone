@@ -4,8 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "keystone dev",
+    "dev:codegen": "graphql-codegen --watch",
     "start": "keystone start",
-    "build": "keystone build"
+    "build": "keystone build",
+    "codegen": "graphql-codegen"
   },
   "dependencies": {
     "@graphql-tools/schema": "^10.0.25",
@@ -13,10 +15,15 @@
     "@keystone-6/core": "^6.0.0",
     "@keystone-6/fields-document": "^9.0.0",
     "@prisma/client": "5.22.0",
-    "typescript": "^5.5.0"
+    "graphql": "^16.11.0"
   },
   "devDependencies": {
-    "prisma": "5.22.0"
+    "@graphql-codegen/cli": "^6.0.0",
+    "@graphql-codegen/introspection": "^5.0.0",
+    "@graphql-codegen/typescript": "^5.0.0",
+    "@graphql-codegen/typescript-resolvers": "^5.0.0",
+    "prisma": "5.22.0",
+    "typescript": "^5.5.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
