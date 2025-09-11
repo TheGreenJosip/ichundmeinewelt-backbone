@@ -392,6 +392,10 @@ type Mutation {
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
+  logMessage(
+    """The message to log to the server console"""
+    message: String!
+  ): String
 }
 
 union UserAuthenticationWithPasswordResult = UserAuthenticationWithPasswordSuccess | UserAuthenticationWithPasswordFailure
@@ -427,6 +431,7 @@ type Query {
   contactSubmissionsCount(where: ContactSubmissionWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
+  helloWorld: String
 }
 
 union AuthenticatedItem = User

@@ -1,3 +1,7 @@
+// File: src/utils/slugify.ts
+// This file contains utility functions for generating slugs from strings.
+// It is part of the ichundmeinewelt-backbone project.
+
 /**
  * @fileoverview Utility function to generate URL-friendly slugs from strings.
  *

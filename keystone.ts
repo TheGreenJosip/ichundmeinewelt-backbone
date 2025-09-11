@@ -1,3 +1,5 @@
+// keystone.ts
+
 /**
  * Keystone entry point.
  * 
@@ -9,6 +11,7 @@
 import { config } from '@keystone-6/core';
 import { lists } from './src/models';
 import { withAuth, session } from './src/auth';
+import { extendGraphqlSchema } from './src/graphql';
 
 export default withAuth(
   config({
@@ -20,6 +23,9 @@ export default withAuth(
     session,
     ui: {
       isAccessAllowed: (context) => !!context.session?.data,
+    },
+    graphql: {
+      extendGraphqlSchema,
     },
   })
 );
