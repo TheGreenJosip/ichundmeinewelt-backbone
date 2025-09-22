@@ -22,15 +22,24 @@ model User {
 }
 
 model Post {
-  id          String    @id @default(cuid())
-  title       String    @default("")
-  slug        String    @unique @default("")
-  content     String    @default("")
-  status      String?   @default("draft")
-  publishedAt DateTime?
-  tags        Tag[]     @relation("Post_tags")
-  createdAt   DateTime? @default(now())
-  updatedAt   DateTime? @updatedAt
+  id                   String    @id @default(cuid())
+  title                String    @default("")
+  slug                 String    @unique @default("")
+  excerpt              String    @default("")
+  coverImage_id        String?
+  coverImage_filesize  Int?
+  coverImage_width     Int?
+  coverImage_height    Int?
+  coverImage_extension String?
+  content              String    @default("")
+  status               String?   @default("draft")
+  publishedAt          DateTime?
+  featured             Boolean   @default(false)
+  tags                 Tag[]     @relation("Post_tags")
+  viewCount            Int?      @default(0)
+  likeCount            Int?      @default(0)
+  createdAt            DateTime? @default(now())
+  updatedAt            DateTime? @updatedAt
 }
 
 model Tag {
@@ -48,4 +57,16 @@ model ContactSubmission {
   message   String    @default("")
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
+}
+
+model Subscriber {
+  id           String    @id @default(cuid())
+  email        String    @unique @default("")
+  name         String    @default("")
+  source       String    @default("")
+  status       String?   @default("active")
+  consentGiven Boolean   @default(true)
+  subscribedAt DateTime? @default(now())
+  createdAt    DateTime? @default(now())
+  updatedAt    DateTime? @updatedAt
 }

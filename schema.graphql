@@ -137,13 +137,35 @@ type Post {
   id: ID!
   title: String
   slug: String
+  excerpt: String
+  coverImage: ImageFieldOutput
   content: String
   status: String
   publishedAt: DateTime
+  featured: Boolean
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
   tagsCount(where: TagWhereInput! = {}): Int
+  readingTime: String
+  viewCount: Int
+  likeCount: Int
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+type ImageFieldOutput {
+  id: ID!
+  filesize: Int!
+  width: Int!
+  height: Int!
+  extension: ImageExtension!
+  url: String!
+}
+
+enum ImageExtension {
+  jpg
+  png
+  webp
+  gif
 }
 
 input PostWhereUniqueInput {
@@ -158,10 +180,14 @@ input PostWhereInput {
   id: IDFilter
   title: StringFilter
   slug: StringFilter
+  excerpt: StringFilter
   content: StringFilter
   status: StringNullableFilter
   publishedAt: DateTimeNullableFilter
+  featured: BooleanFilter
   tags: TagManyRelationFilter
+  viewCount: IntNullableFilter
+  likeCount: IntNullableFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
 }
@@ -180,19 +206,39 @@ input StringNullableFilter {
   not: StringNullableFilter
 }
 
+input BooleanFilter {
+  equals: Boolean
+  not: BooleanFilter
+}
+
 input TagManyRelationFilter {
   every: TagWhereInput
   some: TagWhereInput
   none: TagWhereInput
 }
 
+input IntNullableFilter {
+  equals: Int
+  in: [Int!]
+  notIn: [Int!]
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  not: IntNullableFilter
+}
+
 input PostOrderByInput {
   id: OrderDirection
   title: OrderDirection
   slug: OrderDirection
+  excerpt: OrderDirection
   content: OrderDirection
   status: OrderDirection
   publishedAt: OrderDirection
+  featured: OrderDirection
+  viewCount: OrderDirection
+  likeCount: OrderDirection
   createdAt: OrderDirection
   updatedAt: OrderDirection
 }
@@ -200,13 +246,25 @@ input PostOrderByInput {
 input PostUpdateInput {
   title: String
   slug: String
+  excerpt: String
+  coverImage: ImageFieldInput
   content: String
   status: String
   publishedAt: DateTime
+  featured: Boolean
   tags: TagRelateToManyForUpdateInput
+  viewCount: Int
+  likeCount: Int
   createdAt: DateTime
   updatedAt: DateTime
 }
+
+input ImageFieldInput {
+  upload: Upload!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
 
 input TagRelateToManyForUpdateInput {
   disconnect: [TagWhereUniqueInput!]
@@ -223,10 +281,15 @@ input PostUpdateArgs {
 input PostCreateInput {
   title: String
   slug: String
+  excerpt: String
+  coverImage: ImageFieldInput
   content: String
   status: String
   publishedAt: DateTime
+  featured: Boolean
   tags: TagRelateToManyForCreateInput
+  viewCount: Int
+  likeCount: Int
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -359,6 +422,77 @@ input ContactSubmissionCreateInput {
   updatedAt: DateTime
 }
 
+type Subscriber {
+  id: ID!
+  email: String
+  name: String
+  source: String
+  status: String
+  consentGiven: Boolean
+  subscribedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input SubscriberWhereUniqueInput {
+  id: ID
+  email: String
+}
+
+input SubscriberWhereInput {
+  AND: [SubscriberWhereInput!]
+  OR: [SubscriberWhereInput!]
+  NOT: [SubscriberWhereInput!]
+  id: IDFilter
+  email: StringFilter
+  name: StringFilter
+  source: StringFilter
+  status: StringNullableFilter
+  consentGiven: BooleanFilter
+  subscribedAt: DateTimeNullableFilter
+  createdAt: DateTimeNullableFilter
+  updatedAt: DateTimeNullableFilter
+}
+
+input SubscriberOrderByInput {
+  id: OrderDirection
+  email: OrderDirection
+  name: OrderDirection
+  source: OrderDirection
+  status: OrderDirection
+  consentGiven: OrderDirection
+  subscribedAt: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input SubscriberUpdateInput {
+  email: String
+  name: String
+  source: String
+  status: String
+  consentGiven: Boolean
+  subscribedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input SubscriberUpdateArgs {
+  where: SubscriberWhereUniqueInput!
+  data: SubscriberUpdateInput!
+}
+
+input SubscriberCreateInput {
+  email: String
+  name: String
+  source: String
+  status: String
+  consentGiven: Boolean
+  subscribedAt: DateTime
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -389,6 +523,12 @@ type Mutation {
   updateContactSubmissions(data: [ContactSubmissionUpdateArgs!]!): [ContactSubmission]
   deleteContactSubmission(where: ContactSubmissionWhereUniqueInput!): ContactSubmission
   deleteContactSubmissions(where: [ContactSubmissionWhereUniqueInput!]!): [ContactSubmission]
+  createSubscriber(data: SubscriberCreateInput!): Subscriber
+  createSubscribers(data: [SubscriberCreateInput!]!): [Subscriber]
+  updateSubscriber(where: SubscriberWhereUniqueInput!, data: SubscriberUpdateInput!): Subscriber
+  updateSubscribers(data: [SubscriberUpdateArgs!]!): [Subscriber]
+  deleteSubscriber(where: SubscriberWhereUniqueInput!): Subscriber
+  deleteSubscribers(where: [SubscriberWhereUniqueInput!]!): [Subscriber]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -399,6 +539,36 @@ type Mutation {
   logMessage(
     """The message text to log to the server console."""
     message: String!
+  ): String
+
+  """Creates a new contact form submission."""
+  submitContactForm(
+    """Name of the person submitting the form."""
+    name: String!
+
+    """Email address of the person submitting the form."""
+    email: String!
+
+    """Message content."""
+    message: String!
+
+    """Hidden anti-spam field — should be empty for real users."""
+    honeypot: String
+  ): String
+
+  """Creates a new newsletter subscriber."""
+  submitNewsletterSignup(
+    """Subscriber email address."""
+    email: String!
+
+    """Optional subscriber name."""
+    name: String
+
+    """Where the signup happened (e.g., landing-page, blog-footer)."""
+    source: String
+
+    """Hidden anti-spam field — should be empty for real users."""
+    honeypot: String
   ): String
 }
 
@@ -433,6 +603,9 @@ type Query {
   contactSubmission(where: ContactSubmissionWhereUniqueInput!): ContactSubmission
   contactSubmissions(where: ContactSubmissionWhereInput! = {}, orderBy: [ContactSubmissionOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: ContactSubmissionWhereUniqueInput): [ContactSubmission!]
   contactSubmissionsCount(where: ContactSubmissionWhereInput! = {}): Int
+  subscriber(where: SubscriberWhereUniqueInput!): Subscriber
+  subscribers(where: SubscriberWhereInput! = {}, orderBy: [SubscriberOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: SubscriberWhereUniqueInput): [Subscriber!]
+  subscribersCount(where: SubscriberWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 

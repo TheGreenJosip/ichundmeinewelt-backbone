@@ -8,10 +8,12 @@ import { User } from './User';
 import { Post } from './Post';
 import { Tag } from './Tag';
 import { ContactSubmission } from './ContactSubmission';
+import { Subscriber } from './Subscriber';
 
 export const lists = {
     User,
     Post,
     Tag,
     ContactSubmission,
+    Subscriber,
 };

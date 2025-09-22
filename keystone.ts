@@ -12,6 +12,7 @@ import { config } from '@keystone-6/core';
 import { lists } from './src/models';
 import { withAuth, session } from './src/auth';
 import { extendGraphqlSchema } from './src/graphql';
+import { storage } from './src/config/storage';
 
 export default withAuth(
   config({
@@ -19,6 +20,7 @@ export default withAuth(
       provider: 'sqlite',
       url: 'file:./keystone.db',
     },
+    storage,
     lists,
     session,
     ui: {
