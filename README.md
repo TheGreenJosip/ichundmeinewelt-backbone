@@ -24,23 +24,38 @@ It is intentionally **modular** and **scalable**, so I can start small and grow 
 
 ```mermaid
 flowchart LR
-    subgraph Frontend
-        A[Landing Page Form]
+    %% Styling
+    classDef frontend fill:#E3F2FD,stroke:#2196F3,stroke-width:2px,color:#0D47A1;
+    classDef backend fill:#FFF3E0,stroke:#FB8C00,stroke-width:2px,color:#E65100;
+    classDef db fill:#E8F5E9,stroke:#43A047,stroke-width:2px,color:#1B5E20;
+    classDef ui fill:#F3E5F5,stroke:#8E24AA,stroke-width:2px,color:#4A148C;
+
+    %% Nodes
+    subgraph Frontend["💻 Frontend (Next.js Landing Page)"]
+        A[📝 Landing Page Form]
     end
 
-    subgraph Backend[Keystone.js Backend]
-        B[GraphQL API Endpoint]
-        C[Custom Mutation]
-        D[Resolver Logic]
-        E[(Database)]
-        F[Admin UI]
+    subgraph Backend["🛠 Keystone.js Backend"]
+        B[🔌 GraphQL API Endpoint]
+        C[⚙️ Custom Mutation]
+        D[🧠 Resolver Logic]
+        F[📊 Admin UI]
     end
 
+    E[(🗄 Database)]
+
+    %% Connections
     A -->|Form Submit| B
     B -->|Calls| C
     C -->|Executes| D
     D -->|Writes Data| E
     E -->|Displays in| F
+
+    %% Class assignments
+    class A frontend;
+    class B,C,D backend;
+    class E db;
+    class F ui;
 ```
 
 ---
