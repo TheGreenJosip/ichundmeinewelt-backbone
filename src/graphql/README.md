@@ -1,5 +1,8 @@
 # GraphQL Layer — ichundmeinewelt-backbone
 
+> 📌 **Back to [Root README](../../README.md)** for full project context.
+
+
 This folder contains all **custom GraphQL schema extensions** for the Keystone 6 backend.
 
 Keystone automatically generates a CRUD GraphQL API for each list you define in `src/models`.  
