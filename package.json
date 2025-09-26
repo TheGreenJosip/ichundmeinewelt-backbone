@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@graphql-tools/schema": "^10.0.25",
+    "@ichundmeinewelt/commit-gen-service": "link:/Users/josipgrgic/ichundmeinewelt-tools/commit-gen-service",
     "@keystone-6/auth": "^8.0.0",
     "@keystone-6/core": "^6.0.0",
     "@keystone-6/fields-document": "^9.0.0",

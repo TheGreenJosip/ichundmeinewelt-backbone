@@ -1,0 +1,16 @@
+tone: "Concise, imperative mood"
+format: |
+  Short summary line in 'type(scope): subject' format.
+  Follow with a blank line, then a bullet list of changes.
+  Each bullet starts with '- ' and is wrapped at ~72 characters.
+  Use imperative mood for all lines.
+examples:
+  - |
+    chore(codegen): configure GraphQL Code Generator and generate initial schema/types
+
+    - Installed and configured @graphql-codegen/cli with plugins for TypeScript types and schema introspection
+    - Added codegen scripts to package.json for one-off and watch mode generation
+    - Generated schema.json from Keystone GraphQL API for offline tooling (e.g., Insomnia)
+    - Generated src/types/graphql.ts with type-safe schema and resolver signatures
+    - Verified successful generation via pnpm codegen
+    - Note: generated types are not yet leveraged in Keystone models, hooks, or resolvers
