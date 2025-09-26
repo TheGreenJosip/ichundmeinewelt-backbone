@@ -139,7 +139,7 @@ type Post {
   slug: String
   excerpt: String
   coverImage: ImageFieldOutput
-  content: String
+  content: Post_content_Document
   status: String
   publishedAt: DateTime
   featured: Boolean
@@ -168,6 +168,10 @@ enum ImageExtension {
   gif
 }
 
+type Post_content_Document {
+  document(hydrateRelationships: Boolean! = false): JSON!
+}
+
 input PostWhereUniqueInput {
   id: ID
   slug: String
@@ -181,7 +185,6 @@ input PostWhereInput {
   title: StringFilter
   slug: StringFilter
   excerpt: StringFilter
-  content: StringFilter
   status: StringNullableFilter
   publishedAt: DateTimeNullableFilter
   featured: BooleanFilter
@@ -233,7 +236,6 @@ input PostOrderByInput {
   title: OrderDirection
   slug: OrderDirection
   excerpt: OrderDirection
-  content: OrderDirection
   status: OrderDirection
   publishedAt: OrderDirection
   featured: OrderDirection
@@ -248,7 +250,7 @@ input PostUpdateInput {
   slug: String
   excerpt: String
   coverImage: ImageFieldInput
-  content: String
+  content: JSON
   status: String
   publishedAt: DateTime
   featured: Boolean
@@ -283,7 +285,7 @@ input PostCreateInput {
   slug: String
   excerpt: String
   coverImage: ImageFieldInput
-  content: String
+  content: JSON
   status: String
   publishedAt: DateTime
   featured: Boolean

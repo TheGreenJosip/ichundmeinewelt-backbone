@@ -31,7 +31,7 @@ model Post {
   coverImage_width     Int?
   coverImage_height    Int?
   coverImage_extension String?
-  content              String    @default("")
+  content              String    @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
   status               String?   @default("draft")
   publishedAt          DateTime?
   featured             Boolean   @default(false)

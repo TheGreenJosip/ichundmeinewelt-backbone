@@ -38,6 +38,7 @@ import {
   image,
   virtual,
 } from '@keystone-6/core/fields';
+import { document } from '@keystone-6/fields-document';
 import { graphql } from '@keystone-6/core';
 import { accessRules } from '../access-control/access';
 import { ListAccessArgs } from '../types';
@@ -98,8 +99,14 @@ export const Post = list({
      * - Currently plain text (textarea).
      * - Can be upgraded to `document` for rich text or MDX integration.
      */
-    content: text({
-      ui: { displayMode: 'textarea' },
+    content: document({
+      formatting: true,
+      layouts: [
+        [1, 1],
+        [1, 1, 1],
+      ],
+      links: true,
+      dividers: true,
     }),
 
     /** Status — draft or published */
