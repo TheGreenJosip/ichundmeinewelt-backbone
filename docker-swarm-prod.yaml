@@ -2,40 +2,62 @@ version: "3.8"
 
 services:
   backbone:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ichundmeinewelt-backbone:latest
     env_file:
-      - .env.production
+      - .env.prod
     networks:
       - traefik-public
+      - backbone-internal
+    depends_on:
+      - postgres
     deploy:
       replicas: 1
       restart_policy:
         condition: on-failure
       placement:
         constraints:
-          - node.role == manager
-      labels:
-        - traefik.enable=true
-        - traefik.docker.network=traefik-public
-        - traefik.constraint-label=traefik-public
+          - node.hostname == node6
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik-public
+      - traefik.constraint-label=traefik-public
 
-        # Naked domain for API
-        - traefik.http.routers.backbone-http.rule=Host(`api.ichundmeinewelt.com`)
-        - traefik.http.routers.backbone-http.entrypoints=http
-        - traefik.http.routers.backbone-http.middlewares=https-redirect
-        - traefik.http.routers.backbone-https.rule=Host(`api.ichundmeinewelt.com`)
-        - traefik.http.routers.backbone-https.entrypoints=https
-        - traefik.http.routers.backbone-https.tls=true
-        - traefik.http.routers.backbone-https.tls.certresolver=le
-        - traefik.http.services.backbone.loadbalancer.server.port=3000
+      # Naked domain for API
+      - traefik.http.routers.backbone-http.rule=Host(`api.ichundmeinewelt.com`)
+      - traefik.http.routers.backbone-http.entrypoints=http
+      - traefik.http.routers.backbone-http.middlewares=https-redirect
+      - traefik.http.routers.backbone-https.rule=Host(`api.ichundmeinewelt.com`)
+      - traefik.http.routers.backbone-https.entrypoints=https
+      - traefik.http.routers.backbone-https.tls=true
+      - traefik.http.routers.backbone-https.tls.certresolver=le
+      - traefik.http.services.backbone.loadbalancer.server.port=3000
 
-        # Optional www redirect
-        - traefik.http.routers.backbone-www.rule=Host(`www.api.ichundmeinewelt.com`)
-        - traefik.http.routers.backbone-www.entrypoints=https
-        - traefik.http.routers.backbone-www.middlewares=redirect-www-to-naked
+      # Optional www redirect
+      - traefik.http.routers.backbone-www.rule=Host(`www.api.ichundmeinewelt.com`)
+      - traefik.http.routers.backbone-www.entrypoints=https
+      - traefik.http.routers.backbone-www.middlewares=redirect-www-to-naked
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ichundmeinewelt
+      POSTGRES_USER: thegreenjo
+      POSTGRES_PASSWORD: josipG96
+    volumes:
+      - ~/ichundmeinewelt/db:/var/lib/postgresql/data
+    networks:
+      - backbone-internal
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.hostname == node6
 
 networks:
   traefik-public:
     external: true
+  backbone-internal:
+    driver: overlay
+    attachable: true

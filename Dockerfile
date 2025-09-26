@@ -1,26 +1,33 @@
-# Stage 1: Install dependencies
-FROM node:20-alpine AS deps
+# ---------------------------
+# Stage 1: Dependencies
+# ---------------------------
+FROM node:20-alpine3.18 AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN npm install -g pnpm && pnpm install --frozen-lockfile
 
+# ---------------------------
 # Stage 2: Build Keystone
-FROM node:20-alpine AS builder
+# ---------------------------
+FROM node:20-alpine3.18 AS builder
 WORKDIR /app
-# Install pnpm in builder stage too
 RUN npm install -g pnpm
+RUN apk add --no-cache openssl1.1-compat
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# Generate Prisma client & build Keystone
 RUN pnpm prisma generate
 RUN pnpm build
 
-# Stage 3: Production runner
-FROM node:20-alpine AS runner
+# ---------------------------
+# Stage 3: Production Runner
+# ---------------------------
+FROM node:20-alpine3.18 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
+RUN apk add --no-cache openssl1.1-compat
 
+# Copy built app
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.keystone ./.keystone
 COPY --from=builder /app/package.json ./package.json
@@ -28,6 +35,11 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/migrations ./migrations
 COPY --from=builder /app/schema.prisma ./schema.prisma
 
+# Copy migration entrypoint script
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+RUN chmod +x /app/docker-entrypoint.sh
+
+# Create non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
@@ -35,4 +47,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
 
-CMD ["npm", "start"]
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
