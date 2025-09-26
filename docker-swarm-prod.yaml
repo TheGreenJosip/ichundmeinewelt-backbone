@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  backbone:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env.production
+    networks:
+      - traefik-public
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        - traefik.enable=true
+        - traefik.docker.network=traefik-public
+        - traefik.constraint-label=traefik-public
+
+        # Naked domain for API
+        - traefik.http.routers.backbone-http.rule=Host(`api.ichundmeinewelt.com`)
+        - traefik.http.routers.backbone-http.entrypoints=http
+        - traefik.http.routers.backbone-http.middlewares=https-redirect
+        - traefik.http.routers.backbone-https.rule=Host(`api.ichundmeinewelt.com`)
+        - traefik.http.routers.backbone-https.entrypoints=https
+        - traefik.http.routers.backbone-https.tls=true
+        - traefik.http.routers.backbone-https.tls.certresolver=le
+        - traefik.http.services.backbone.loadbalancer.server.port=3000
+
+        # Optional www redirect
+        - traefik.http.routers.backbone-www.rule=Host(`www.api.ichundmeinewelt.com`)
+        - traefik.http.routers.backbone-www.entrypoints=https
+        - traefik.http.routers.backbone-www.middlewares=redirect-www-to-naked
+
+networks:
+  traefik-public:
+    external: true

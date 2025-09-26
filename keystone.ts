@@ -11,8 +11,8 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env') });
 export default withAuth(
   config({
     db: {
-      provider: 'sqlite',
-      url: 'file:./keystone.db',
+      provider: 'postgresql',
+      url: process.env.DATABASE_URL!,
     },
     ui: {
       isAccessAllowed: (context) => !!context.session?.data,
