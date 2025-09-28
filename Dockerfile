@@ -25,9 +25,14 @@ FROM node:20-alpine3.18 AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
+
+# Install OpenSSL 1.1 compatibility for Prisma runtime
 RUN apk add --no-cache openssl1.1-compat
 
-# Copy built app
+# Install pnpm in runtime stage so entrypoint can run pnpm commands
+RUN npm install -g pnpm
+
+# Copy built app & dependencies
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.keystone ./.keystone
 COPY --from=builder /app/package.json ./package.json

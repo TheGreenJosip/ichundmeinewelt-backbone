@@ -5,6 +5,8 @@ services:
     image: ichundmeinewelt-backbone:latest
     env_file:
       - .env.prod
+    environment:
+      POSTGRES_HOST: postgres
     networks:
       - traefik-public
       - backbone-internal
@@ -44,7 +46,7 @@ services:
       POSTGRES_USER: thegreenjo
       POSTGRES_PASSWORD: josipG96
     volumes:
-      - ~/ichundmeinewelt/db:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - backbone-internal
     deploy:
@@ -61,3 +63,6 @@ networks:
   backbone-internal:
     driver: overlay
     attachable: true
+
+volumes:
+  postgres_data:
