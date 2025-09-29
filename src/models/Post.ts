@@ -15,7 +15,7 @@ import { accessRules } from '../access-control/access';
 import { ListAccessArgs } from '../types';
 import { timestampFields } from '../utils/timestampFields';
 import { generateSlug } from '../hooks/postHooks';
-import { DocumentRenderer } from '@keystone-6/document-renderer';
+import { serializeRichText } from '../utils/richTextSerializer';
 
 /**
  * Post list definition (Rich Blog Model).
@@ -35,7 +35,7 @@ import { DocumentRenderer } from '@keystone-6/document-renderer';
  * Hooks:
  * - Auto-generate slug from title if not provided.
  * - Calculate reading time from content length.
- * - Provide HTML rendering of content for frontend convenience.
+ * - Provide HTML rendering of content for SEO/non-React consumers.
  */
 
 export const Post = list({
@@ -49,13 +49,7 @@ export const Post = list({
   },
   ui: {
     listView: {
-      initialColumns: [
-        'title',
-        'slug',
-        'status',
-        'publishedAt',
-        'featured',
-      ],
+      initialColumns: ['title', 'slug', 'status', 'publishedAt', 'featured'],
       initialSort: { field: 'publishedAt', direction: 'DESC' },
     },
   },
@@ -90,10 +84,27 @@ export const Post = list({
     /**
      * Content:
      * - Rich text document field.
-     * - Supports formatting, layouts, links, and dividers.
+     * - Supports full formatting, layouts, links, and dividers.
+     * - This JSON will be rendered in the frontend via DocumentRenderer.
      */
     content: document({
-      formatting: true,
+      formatting: {
+        inlineMarks: {
+          bold: true,
+          italic: true,
+          underline: true,
+          strikethrough: true,
+          code: true,
+          superscript: true,
+          subscript: true,
+          keyboard: true,
+        },
+        listTypes: { ordered: true, unordered: true },
+        alignment: { center: true, end: true },
+        headingLevels: [1, 2, 3, 4, 5, 6],
+        blockTypes: { blockquote: true, code: true },
+        softBreaks: true,
+      },
       layouts: [
         [1, 1],
         [1, 1, 1],
@@ -126,13 +137,12 @@ export const Post = list({
 
     /**
      * Reading time — calculated from content length.
-     * Works with document field structure by extracting text nodes.
+     * Uses document JSON to count words.
      */
     readingTime: virtual({
       field: graphql.field({
         type: graphql.String,
         async resolve(item, args, context) {
-          // Explicitly load the content field for this item
           const post = await context.query.Post.findOne({
             where: { id: item.id.toString() },
             query: `content { document }`,
@@ -140,15 +150,14 @@ export const Post = list({
 
           if (!post?.content?.document) return '0 min read';
 
-          const extractText = (nodes: any[]): string => {
-            return nodes
+          const extractText = (nodes: any[]): string =>
+            nodes
               .map((node) => {
                 if (node.text) return node.text;
                 if (node.children) return extractText(node.children);
                 return '';
               })
               .join(' ');
-          };
 
           const text = extractText(post.content.document);
           const words = text.trim().split(/\s+/).filter(Boolean).length;
@@ -159,43 +168,20 @@ export const Post = list({
     }),
 
     /**
-     * HTML rendering of content — for frontend convenience.
-     * Uses Keystone's document renderer to convert JSON to HTML.
+     * HTML rendering of content — for SEO or non-React consumers.
+     * Frontend now uses DocumentRenderer with `content.document` directly.
      */
     contentHtml: virtual({
       field: graphql.field({
         type: graphql.String,
         async resolve(item, args, context) {
-          // Explicitly load the content field for this item
           const post = await context.query.Post.findOne({
             where: { id: item.id.toString() },
             query: `content { document }`,
           });
 
           if (!post?.content?.document) return '';
-
-          const serialize = (nodes: any[]): string => {
-            return nodes
-              .map((node) => {
-                switch (node.type) {
-                  case 'paragraph':
-                    return `<p>${serialize(node.children || [])}</p>`;
-                  case 'unordered-list':
-                    return `<ul>${serialize(node.children || [])}</ul>`;
-                  case 'list-item':
-                    return `<li>${serialize(node.children || [])}</li>`;
-                  case 'list-item-content':
-                    return serialize(node.children || []);
-                  default:
-                    if (node.text) return node.text;
-                    if (node.children) return serialize(node.children);
-                    return '';
-                }
-              })
-              .join('');
-          };
-
-          return serialize(post.content.document);
+          return serializeRichText(post.content.document);
         },
       }),
     }),

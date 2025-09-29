@@ -3,10 +3,10 @@
   "version": "1.0.3",
   "private": true,
   "scripts": {
-    "dev": "keystone dev",
+    "dev": "NODE_ENV=development keystone dev",
     "dev:codegen": "graphql-codegen --watch",
-    "start": "keystone start",
-    "build": "keystone build",
+    "start": "NODE_ENV=production keystone start",
+    "build": "NODE_ENV=production keystone build",
     "codegen": "graphql-codegen",
     "prisma": "prisma"
   },
