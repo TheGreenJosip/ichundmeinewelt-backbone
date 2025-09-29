@@ -16,7 +16,8 @@ export const storage = {
   local_images: {
     kind: 'local' as const,
     type: 'image' as const,
-    generateUrl: (filePath: string) => `${ENV.ASSET_BASE_URL}/images${filePath}`,
+    generateUrl: (filePath: string) =>
+      `${ENV.ASSET_BASE_URL}/images${filePath}`,
     serverRoute: {
       path: '/images',
     },
