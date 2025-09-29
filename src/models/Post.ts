@@ -1,32 +1,3 @@
-/**
- * Post list definition (Rich Blog Model).
- *
- * Purpose:
- * - Stores public-facing blog/news posts for the landing page and blog area.
- * - Supports rich content, metadata, relationships, and engagement tracking.
- *
- * Storage:
- * - `coverImage` uses the `local_images` storage adapter.
- * - Ensure `keystone.ts` has a matching storage config:
- *   storage: {
- *     local_images: {
- *       kind: 'local',
- *       type: 'image',
- *       generateUrl: path => `/images${path}`,
- *       serverRoute: { path: '/images' },
- *       storagePath: path.join(process.cwd(), 'public', 'images'),
- *     },
- *   }
- *
- * Access:
- * - Public can read only published posts.
- * - Admin can manage all posts.
- *
- * Hooks:
- * - Auto-generate slug from title if not provided.
- * - Calculate reading time from content length.
- */
-
 import { list } from '@keystone-6/core';
 import {
   text,
@@ -44,6 +15,28 @@ import { accessRules } from '../access-control/access';
 import { ListAccessArgs } from '../types';
 import { timestampFields } from '../utils/timestampFields';
 import { generateSlug } from '../hooks/postHooks';
+import { DocumentRenderer } from '@keystone-6/document-renderer';
+
+/**
+ * Post list definition (Rich Blog Model).
+ *
+ * Purpose:
+ * - Stores public-facing blog/news posts for the landing page and blog area.
+ * - Supports rich content, metadata, relationships, and engagement tracking.
+ *
+ * Storage:
+ * - `coverImage` uses the `local_images` storage adapter.
+ * - Ensure `keystone.ts` has a matching storage config.
+ *
+ * Access:
+ * - Public can read only published posts.
+ * - Admin can manage all posts.
+ *
+ * Hooks:
+ * - Auto-generate slug from title if not provided.
+ * - Calculate reading time from content length.
+ * - Provide HTML rendering of content for frontend convenience.
+ */
 
 export const Post = list({
   access: {
@@ -96,8 +89,8 @@ export const Post = list({
 
     /**
      * Content:
-     * - Currently plain text (textarea).
-     * - Can be upgraded to `document` for rich text or MDX integration.
+     * - Rich text document field.
+     * - Supports formatting, layouts, links, and dividers.
      */
     content: document({
       formatting: true,
@@ -131,15 +124,78 @@ export const Post = list({
     /** Tags — many-to-many relationship to Tag list */
     tags: relationship({ ref: 'Tag.posts', many: true }),
 
-    /** Reading time — calculated from content length */
+    /**
+     * Reading time — calculated from content length.
+     * Works with document field structure by extracting text nodes.
+     */
     readingTime: virtual({
       field: graphql.field({
         type: graphql.String,
-        resolve(item: any) {
-          if (!item.content) return '0 min read';
-          const words = item.content.split(/\s+/).length;
-          const minutes = Math.ceil(words / 200); // ~200 wpm
+        async resolve(item, args, context) {
+          // Explicitly load the content field for this item
+          const post = await context.query.Post.findOne({
+            where: { id: item.id.toString() },
+            query: `content { document }`,
+          });
+
+          if (!post?.content?.document) return '0 min read';
+
+          const extractText = (nodes: any[]): string => {
+            return nodes
+              .map((node) => {
+                if (node.text) return node.text;
+                if (node.children) return extractText(node.children);
+                return '';
+              })
+              .join(' ');
+          };
+
+          const text = extractText(post.content.document);
+          const words = text.trim().split(/\s+/).filter(Boolean).length;
+          const minutes = Math.ceil(words / 200);
           return `${minutes} min read`;
+        },
+      }),
+    }),
+
+    /**
+     * HTML rendering of content — for frontend convenience.
+     * Uses Keystone's document renderer to convert JSON to HTML.
+     */
+    contentHtml: virtual({
+      field: graphql.field({
+        type: graphql.String,
+        async resolve(item, args, context) {
+          // Explicitly load the content field for this item
+          const post = await context.query.Post.findOne({
+            where: { id: item.id.toString() },
+            query: `content { document }`,
+          });
+
+          if (!post?.content?.document) return '';
+
+          const serialize = (nodes: any[]): string => {
+            return nodes
+              .map((node) => {
+                switch (node.type) {
+                  case 'paragraph':
+                    return `<p>${serialize(node.children || [])}</p>`;
+                  case 'unordered-list':
+                    return `<ul>${serialize(node.children || [])}</ul>`;
+                  case 'list-item':
+                    return `<li>${serialize(node.children || [])}</li>`;
+                  case 'list-item-content':
+                    return serialize(node.children || []);
+                  default:
+                    if (node.text) return node.text;
+                    if (node.children) return serialize(node.children);
+                    return '';
+                }
+              })
+              .join('');
+          };
+
+          return serialize(post.content.document);
         },
       }),
     }),

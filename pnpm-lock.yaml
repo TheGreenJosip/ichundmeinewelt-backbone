@@ -20,6 +20,9 @@ importers:
       '@keystone-6/core':
         specifier: ^6.0.0
         version: 6.5.1(@babel/core@7.28.4)(@prisma/generator-helper@5.22.0)(@types/express@4.17.23)(@types/react@18.3.24)(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.3))
+      '@keystone-6/document-renderer':
+        specifier: ^1.1.2
+        version: 1.1.2(react@18.3.1)
       '@keystone-6/fields-document':
         specifier: ^9.0.0
         version: 9.1.1(@keystone-6/core@6.5.1(@babel/core@7.28.4)(@prisma/generator-helper@5.22.0)(@types/express@4.17.23)(@types/react@18.3.24)(graphql-ws@6.0.6(graphql@16.11.0)(ws@8.18.3)))(slate-dom@0.118.1(slate@0.110.2))

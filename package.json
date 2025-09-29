@@ -18,6 +18,7 @@
     "@ichundmeinewelt/commit-gen-service": "link:/Users/josipgrgic/ichundmeinewelt-tools/commit-gen-service",
     "@keystone-6/auth": "^8.0.0",
     "@keystone-6/core": "^6.0.0",
+    "@keystone-6/document-renderer": "^1.1.2",
     "@keystone-6/fields-document": "^9.0.0",
     "@prisma/client": "5.22.0",
     "bcryptjs": "^3.0.2",

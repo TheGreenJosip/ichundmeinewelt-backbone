@@ -32,7 +32,7 @@ services:
         - traefik.http.routers.backbone-https.rule=Host(`api.ichundmeinewelt.com`)
         - traefik.http.routers.backbone-https.entrypoints=https
         - traefik.http.routers.backbone-https.tls=true
-        - traefik.http.routers.backbone-https.tls.certresolver=cloudflare
+        - traefik.http.routers.backbone-https.tls.certresolver=le
 
         # Service definition
         - traefik.http.services.backbone.loadbalancer.server.port=3000
