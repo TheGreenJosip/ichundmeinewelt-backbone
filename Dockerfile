@@ -58,27 +58,22 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/migrations ./migrations
 COPY --from=builder /app/schema.prisma ./schema.prisma
 
+# Create a non-root user for security
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+
+# Ensure images directory exists and is writable by appuser
+RUN mkdir -p ./public/images && chown -R appuser:appgroup ./public
+
 # Copy migration entrypoint script
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
 
-# Create a non-root user for security
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 USER appuser
 
 EXPOSE 3000
 
-# ---------------------------
 # Healthcheck
-# ---------------------------
-# This now targets the /status endpoint defined in keystone.ts
-# Ensures container is marked healthy only when Keystone is fully up
-# Works with Traefik & Swarm to avoid routing to unhealthy instances
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s \
     CMD wget --no-verbose --tries=1 --spider http://localhost:3000/status || exit 1
 
-# ---------------------------
-# Entrypoint
-# ---------------------------
-# Runs migration script before starting Keystone
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
