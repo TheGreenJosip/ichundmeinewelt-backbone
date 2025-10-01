@@ -15,7 +15,7 @@ import { graphql } from '@keystone-6/core';
 import { logMessage } from './mutations/logMessage';
 import { submitContactForm } from './mutations/createContactSubmission';
 import { submitNewsletterSignup } from './mutations/createSubscriber';
-
+import { createKnowledgeBaseEntry } from './mutations/createKnowledgeBaseEntry';
 
 // Import queries
 import { helloWorld } from './queries/helloWorld';
@@ -25,6 +25,7 @@ export const extendGraphqlSchema = graphql.extend((base) => ({
     logMessage,
     submitContactForm,
     submitNewsletterSignup,
+    createKnowledgeBaseEntry
   },
   query: {
     helloWorld,

@@ -9,6 +9,8 @@ import { Post } from './Post';
 import { Tag } from './Tag';
 import { ContactSubmission } from './ContactSubmission';
 import { Subscriber } from './Subscriber';
+import { KnowledgeBase } from './KnowledgeBase';
+
 
 export const lists = {
     User,
@@ -16,4 +18,5 @@ export const lists = {
     Tag,
     ContactSubmission,
     Subscriber,
+    KnowledgeBase,
 };

@@ -22,6 +22,8 @@ export const ENV = {
   BACKEND_PORT: Number(process.env.BACKEND_PORT) || 3000,
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:4000',
 
+  // Knowledge Base API key for secure mutations
+  KB_API_KEY: process.env.KB_API_KEY || 'changeme',
   // Optional S3 config
   S3_BUCKET_NAME: process.env.S3_BUCKET_NAME || '',
   S3_REGION: process.env.S3_REGION || '',

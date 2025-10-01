@@ -43,11 +43,12 @@ model Post {
 }
 
 model Tag {
-  id        String    @id @default(cuid())
-  name      String    @default("")
-  posts     Post[]    @relation("Post_tags")
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+  id                   String          @id @default(cuid())
+  name                 String          @unique @default("")
+  posts                Post[]          @relation("Post_tags")
+  knowledgeBaseEntries KnowledgeBase[] @relation("KnowledgeBase_tags")
+  createdAt            DateTime?       @default(now())
+  updatedAt            DateTime?       @updatedAt
 }
 
 model ContactSubmission {
@@ -69,6 +70,20 @@ model Subscriber {
   subscribedAt DateTime? @default(now())
   createdAt    DateTime? @default(now())
   updatedAt    DateTime? @updatedAt
+}
+
+model KnowledgeBase {
+  id         String    @id @default(cuid())
+  title      String    @default("")
+  slug       String    @unique @default("")
+  content    Json      @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
+  plainText  String    @default("")
+  sourceType String?   @default("original")
+  sourceUrl  String    @default("")
+  tags       Tag[]     @relation("KnowledgeBase_tags")
+  status     String?   @default("draft")
+  createdAt  DateTime? @default(now())
+  updatedAt  DateTime? @updatedAt
 }
 
 enum UserRoleType {
