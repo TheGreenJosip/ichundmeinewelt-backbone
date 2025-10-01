@@ -49,7 +49,7 @@ export const Post = list({
   },
   ui: {
     listView: {
-      initialColumns: ['title', 'slug', 'status', 'publishedAt', 'featured'],
+      initialColumns: ['title', 'slug', 'status', 'publishedAt', 'featured', 'author', 'category'],
       initialSort: { field: 'publishedAt', direction: 'DESC' },
     },
   },
@@ -71,6 +71,18 @@ export const Post = list({
       ui: { displayMode: 'textarea' },
     }),
 
+    /** Author — relationship to User list */
+    author: relationship({
+      ref: 'User.posts',
+      ui: { displayMode: 'select' },
+    }),
+
+    /** Category — single category for grouping posts */
+    category: relationship({
+      ref: 'Category.posts',
+      ui: { displayMode: 'select' },
+    }),
+
     /**
      * Cover Image:
      * - Stored locally via `local_images` storage adapter.
@@ -79,6 +91,11 @@ export const Post = list({
     coverImage: image({
       storage: 'local_images',
       ui: { description: 'Main image for the post (used in cards & headers)' },
+    }),
+
+    /** Cover Image Alt Text — for accessibility & SEO */
+    coverImageAlt: text({
+      ui: { description: 'Alternative text for the cover image' },
     }),
 
     /**
@@ -132,8 +149,25 @@ export const Post = list({
       ui: { description: 'Show in featured posts section' },
     }),
 
+    /** Pinned flag — for keeping posts at top of blog index */
+    isPinned: checkbox({
+      defaultValue: false,
+      ui: { description: 'Pin this post to the top of the blog list' },
+    }),
+
     /** Tags — many-to-many relationship to Tag list */
     tags: relationship({ ref: 'Tag.posts', many: true }),
+
+    /** SEO Overrides */
+    seoTitle: text({ ui: { description: 'Optional custom <title> for SEO' } }),
+    seoDescription: text({
+      ui: { displayMode: 'textarea', description: 'Optional custom meta description' },
+    }),
+    canonicalUrl: text({ ui: { description: 'Optional canonical URL for SEO' } }),
+    ogImage: image({
+      storage: 'local_images',
+      ui: { description: 'Optional custom Open Graph image' },
+    }),
 
     /**
      * Reading time — calculated from content length.

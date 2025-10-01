@@ -7,6 +7,8 @@ type User {
   email: String
   password: PasswordState
   role: UserRoleType
+  posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
+  postsCount(where: PostWhereInput! = {}): Int
   createdAt: DateTime
   updatedAt: DateTime
 }
@@ -35,6 +37,7 @@ input UserWhereInput {
   name: StringFilter
   email: StringFilter
   role: UserRoleTypeNullableFilter
+  posts: PostManyRelationFilter
   createdAt: DateTimeNullableFilter
   updatedAt: DateTimeNullableFilter
 }
@@ -91,6 +94,12 @@ input UserRoleTypeNullableFilter {
   not: UserRoleTypeNullableFilter
 }
 
+input PostManyRelationFilter {
+  every: PostWhereInput
+  some: PostWhereInput
+  none: PostWhereInput
+}
+
 input DateTimeNullableFilter {
   equals: DateTime
   in: [DateTime!]
@@ -121,8 +130,16 @@ input UserUpdateInput {
   email: String
   password: String
   role: UserRoleType
+  posts: PostRelateToManyForUpdateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input PostRelateToManyForUpdateInput {
+  disconnect: [PostWhereUniqueInput!]
+  set: [PostWhereUniqueInput!]
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
 }
 
 input UserUpdateArgs {
@@ -135,8 +152,14 @@ input UserCreateInput {
   email: String
   password: String
   role: UserRoleType
+  posts: PostRelateToManyForCreateInput
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input PostRelateToManyForCreateInput {
+  create: [PostCreateInput!]
+  connect: [PostWhereUniqueInput!]
 }
 
 type Post {
@@ -144,13 +167,21 @@ type Post {
   title: String
   slug: String
   excerpt: String
+  author: User
+  category: Category
   coverImage: ImageFieldOutput
+  coverImageAlt: String
   content: Post_content_Document
   status: String
   publishedAt: DateTime
   featured: Boolean
+  isPinned: Boolean
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
   tagsCount(where: TagWhereInput! = {}): Int
+  seoTitle: String
+  seoDescription: String
+  canonicalUrl: String
+  ogImage: ImageFieldOutput
   readingTime: String
   contentHtml: String
   viewCount: Int
@@ -192,10 +223,17 @@ input PostWhereInput {
   title: StringFilter
   slug: StringFilter
   excerpt: StringFilter
+  author: UserWhereInput
+  category: CategoryWhereInput
+  coverImageAlt: StringFilter
   status: StringNullableFilter
   publishedAt: DateTimeNullableFilter
   featured: BooleanFilter
+  isPinned: BooleanFilter
   tags: TagManyRelationFilter
+  seoTitle: StringFilter
+  seoDescription: StringFilter
+  canonicalUrl: StringFilter
   viewCount: IntNullableFilter
   likeCount: IntNullableFilter
   createdAt: DateTimeNullableFilter
@@ -244,9 +282,14 @@ input PostOrderByInput {
   title: OrderDirection
   slug: OrderDirection
   excerpt: OrderDirection
+  coverImageAlt: OrderDirection
   status: OrderDirection
   publishedAt: OrderDirection
   featured: OrderDirection
+  isPinned: OrderDirection
+  seoTitle: OrderDirection
+  seoDescription: OrderDirection
+  canonicalUrl: OrderDirection
   viewCount: OrderDirection
   likeCount: OrderDirection
   createdAt: OrderDirection
@@ -257,16 +300,36 @@ input PostUpdateInput {
   title: String
   slug: String
   excerpt: String
+  author: UserRelateToOneForUpdateInput
+  category: CategoryRelateToOneForUpdateInput
   coverImage: ImageFieldInput
+  coverImageAlt: String
   content: JSON
   status: String
   publishedAt: DateTime
   featured: Boolean
+  isPinned: Boolean
   tags: TagRelateToManyForUpdateInput
+  seoTitle: String
+  seoDescription: String
+  canonicalUrl: String
+  ogImage: ImageFieldInput
   viewCount: Int
   likeCount: Int
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input UserRelateToOneForUpdateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+  disconnect: Boolean
+}
+
+input CategoryRelateToOneForUpdateInput {
+  create: CategoryCreateInput
+  connect: CategoryWhereUniqueInput
+  disconnect: Boolean
 }
 
 input ImageFieldInput {
@@ -292,16 +355,34 @@ input PostCreateInput {
   title: String
   slug: String
   excerpt: String
+  author: UserRelateToOneForCreateInput
+  category: CategoryRelateToOneForCreateInput
   coverImage: ImageFieldInput
+  coverImageAlt: String
   content: JSON
   status: String
   publishedAt: DateTime
   featured: Boolean
+  isPinned: Boolean
   tags: TagRelateToManyForCreateInput
+  seoTitle: String
+  seoDescription: String
+  canonicalUrl: String
+  ogImage: ImageFieldInput
   viewCount: Int
   likeCount: Int
   createdAt: DateTime
   updatedAt: DateTime
+}
+
+input UserRelateToOneForCreateInput {
+  create: UserCreateInput
+  connect: UserWhereUniqueInput
+}
+
+input CategoryRelateToOneForCreateInput {
+  create: CategoryCreateInput
+  connect: CategoryWhereUniqueInput
 }
 
 input TagRelateToManyForCreateInput {
@@ -337,12 +418,6 @@ input TagWhereInput {
   updatedAt: DateTimeNullableFilter
 }
 
-input PostManyRelationFilter {
-  every: PostWhereInput
-  some: PostWhereInput
-  none: PostWhereInput
-}
-
 input KnowledgeBaseManyRelationFilter {
   every: KnowledgeBaseWhereInput
   some: KnowledgeBaseWhereInput
@@ -364,13 +439,6 @@ input TagUpdateInput {
   updatedAt: DateTime
 }
 
-input PostRelateToManyForUpdateInput {
-  disconnect: [PostWhereUniqueInput!]
-  set: [PostWhereUniqueInput!]
-  create: [PostCreateInput!]
-  connect: [PostWhereUniqueInput!]
-}
-
 input KnowledgeBaseRelateToManyForUpdateInput {
   disconnect: [KnowledgeBaseWhereUniqueInput!]
   set: [KnowledgeBaseWhereUniqueInput!]
@@ -389,11 +457,6 @@ input TagCreateInput {
   knowledgeBaseEntries: KnowledgeBaseRelateToManyForCreateInput
   createdAt: DateTime
   updatedAt: DateTime
-}
-
-input PostRelateToManyForCreateInput {
-  create: [PostCreateInput!]
-  connect: [PostWhereUniqueInput!]
 }
 
 input KnowledgeBaseRelateToManyForCreateInput {
@@ -611,6 +674,57 @@ input KnowledgeBaseCreateInput {
   updatedAt: DateTime
 }
 
+type Category {
+  id: ID!
+  name: String
+  posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
+  postsCount(where: PostWhereInput! = {}): Int
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input CategoryWhereUniqueInput {
+  id: ID
+  name: String
+}
+
+input CategoryWhereInput {
+  AND: [CategoryWhereInput!]
+  OR: [CategoryWhereInput!]
+  NOT: [CategoryWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  posts: PostManyRelationFilter
+  createdAt: DateTimeNullableFilter
+  updatedAt: DateTimeNullableFilter
+}
+
+input CategoryOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  createdAt: OrderDirection
+  updatedAt: OrderDirection
+}
+
+input CategoryUpdateInput {
+  name: String
+  posts: PostRelateToManyForUpdateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+input CategoryUpdateArgs {
+  where: CategoryWhereUniqueInput!
+  data: CategoryUpdateInput!
+}
+
+input CategoryCreateInput {
+  name: String
+  posts: PostRelateToManyForCreateInput
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -653,6 +767,12 @@ type Mutation {
   updateKnowledgeBases(data: [KnowledgeBaseUpdateArgs!]!): [KnowledgeBase]
   deleteKnowledgeBase(where: KnowledgeBaseWhereUniqueInput!): KnowledgeBase
   deleteKnowledgeBases(where: [KnowledgeBaseWhereUniqueInput!]!): [KnowledgeBase]
+  createCategory(data: CategoryCreateInput!): Category
+  createCategories(data: [CategoryCreateInput!]!): [Category]
+  updateCategory(where: CategoryWhereUniqueInput!, data: CategoryUpdateInput!): Category
+  updateCategories(data: [CategoryUpdateArgs!]!): [Category]
+  deleteCategory(where: CategoryWhereUniqueInput!): Category
+  deleteCategories(where: [CategoryWhereUniqueInput!]!): [Category]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -754,6 +874,9 @@ type Query {
   knowledgeBase(where: KnowledgeBaseWhereUniqueInput!): KnowledgeBase
   knowledgeBases(where: KnowledgeBaseWhereInput! = {}, orderBy: [KnowledgeBaseOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: KnowledgeBaseWhereUniqueInput): [KnowledgeBase!]
   knowledgeBasesCount(where: KnowledgeBaseWhereInput! = {}): Int
+  category(where: CategoryWhereUniqueInput!): Category
+  categories(where: CategoryWhereInput! = {}, orderBy: [CategoryOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: CategoryWhereUniqueInput): [Category!]
+  categoriesCount(where: CategoryWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 

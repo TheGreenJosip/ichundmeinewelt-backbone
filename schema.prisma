@@ -17,6 +17,7 @@ model User {
   email     String       @unique @default("")
   password  String
   role      UserRoleType @default(user)
+  posts     Post[]       @relation("Post_author")
   createdAt DateTime?    @default(now())
   updatedAt DateTime?    @updatedAt
 }
@@ -26,20 +27,37 @@ model Post {
   title                String    @default("")
   slug                 String    @unique @default("")
   excerpt              String    @default("")
+  author               User?     @relation("Post_author", fields: [authorId], references: [id])
+  authorId             String?   @map("author")
+  category             Category? @relation("Post_category", fields: [categoryId], references: [id])
+  categoryId           String?   @map("category")
   coverImage_id        String?
   coverImage_filesize  Int?
   coverImage_width     Int?
   coverImage_height    Int?
   coverImage_extension String?
+  coverImageAlt        String    @default("")
   content              Json      @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
   status               String?   @default("draft")
   publishedAt          DateTime?
   featured             Boolean   @default(false)
+  isPinned             Boolean   @default(false)
   tags                 Tag[]     @relation("Post_tags")
+  seoTitle             String    @default("")
+  seoDescription       String    @default("")
+  canonicalUrl         String    @default("")
+  ogImage_id           String?
+  ogImage_filesize     Int?
+  ogImage_width        Int?
+  ogImage_height       Int?
+  ogImage_extension    String?
   viewCount            Int?      @default(0)
   likeCount            Int?      @default(0)
   createdAt            DateTime? @default(now())
   updatedAt            DateTime? @updatedAt
+
+  @@index([authorId])
+  @@index([categoryId])
 }
 
 model Tag {
@@ -84,6 +102,14 @@ model KnowledgeBase {
   status     String?   @default("draft")
   createdAt  DateTime? @default(now())
   updatedAt  DateTime? @updatedAt
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique @default("")
+  posts     Post[]    @relation("Post_category")
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 }
 
 enum UserRoleType {

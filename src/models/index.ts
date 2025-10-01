@@ -10,6 +10,7 @@ import { Tag } from './Tag';
 import { ContactSubmission } from './ContactSubmission';
 import { Subscriber } from './Subscriber';
 import { KnowledgeBase } from './KnowledgeBase';
+import { Category } from './Category';
 
 
 export const lists = {
@@ -19,4 +20,5 @@ export const lists = {
     ContactSubmission,
     Subscriber,
     KnowledgeBase,
+    Category
 };
