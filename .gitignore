@@ -21,3 +21,6 @@ src/types/graphql.ts
 
 # public folder (if you have one)
 /public
+
+# Ignore backend context dump
+backend_context_dump.txt

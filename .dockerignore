@@ -33,3 +33,6 @@ Thumbs.db
 # Tests
 __tests__/
 coverage/
+
+# Ignore backend context dump
+backend_context_dump.txt
